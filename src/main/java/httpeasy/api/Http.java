@@ -28,6 +28,12 @@ public final class Http {
                     throw new ForbiddenException();
                 case 404:
                     throw new NotFoundException();
+                case 409:
+                    throw new ConflictException();
+                case 500:
+                    throw new InternalServerErrorException();
+                case 503:
+                    throw new ServiceUnavailableException();
                 default:
                     throw new ServiceException();
             }

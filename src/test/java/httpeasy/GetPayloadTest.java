@@ -50,7 +50,7 @@ public class GetPayloadTest {
 
 
     @Test(expected = ConflictException.class)
-    public void conflictReturnNull() throws Exception {
+    public void conflictReturnConflictException() throws Exception {
         wireMockRule.stubFor(get(anyUrl()).willReturn(status(409)));
 
         Http.get("http://localhost:8080");
@@ -63,7 +63,7 @@ public class GetPayloadTest {
         Http.get("http://localhost:8080");
     }
 
-    @Test(expected = InternalServerErrorException.class)
+    @Test(expected = ServiceUnavailableException.class)
     public void serviceUnavailableErrorsThrowIllegal() throws Exception {
         wireMockRule.stubFor(get(anyUrl()).willReturn(serviceUnavailable()));
 

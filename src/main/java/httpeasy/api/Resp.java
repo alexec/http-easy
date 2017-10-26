@@ -8,7 +8,7 @@ import lombok.Value;
 public class Resp {
     private final String body;
 
-    public String as(Class<String> stringClass) {
-        return null;
+    public <T> T as(Class<T> type) {
+        return type.cast(body);
     }
 }

@@ -14,7 +14,8 @@ public class ServiceExceptionTest {
             ForbiddenException.class,
             InternalServerErrorException.class,
             NotFoundException.class,
-            UnauthorizedException.class
+            UnauthorizedException.class,
+            ServiceUnavailableException.class
     );
 
 }
