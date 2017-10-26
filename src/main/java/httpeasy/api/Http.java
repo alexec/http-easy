@@ -7,12 +7,23 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 public final class Http {
 
     private static final CloseableHttpClient HTTP_CLIENT = HttpClientBuilder.create().build();
 
-    public static Resp get(String uri) {
+    public static Resp get(String uri, String... queryParams) {
+        int i = 0;
+        while (uri.contains("{}")) {
+            try {
+                uri = uri.replace("{}", URLEncoder.encode(queryParams[i++], "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
         try (CloseableHttpResponse execute = HTTP_CLIENT.execute(new HttpGet(uri))) {
 
             switch (execute.getStatusLine().getStatusCode()) {
