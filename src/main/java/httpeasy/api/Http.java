@@ -2,6 +2,9 @@ package httpeasy.api;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -17,7 +20,7 @@ public final class Http {
 
     public static Resp get(String uri, String... queryParams) {
         String finalUri = mergeParams(uri, queryParams);
-        return get(finalUri, resp -> finalUri, err -> err);
+        return get(finalUri, resp -> finalUri, e -> e);
     }
 
     private static String mergeParams(String uri, String[] queryParams) {
@@ -33,8 +36,11 @@ public final class Http {
     }
 
     public static <E> Resp get(String uri, Function<Resp, E> errorMapper, Function<E, String> errorMessageMapper) {
+        return execute(errorMapper, errorMessageMapper, new HttpGet(uri));
+    }
 
-        try (CloseableHttpResponse execute = HTTP_CLIENT.execute(new HttpGet(uri))) {
+    private static <E> Resp execute(Function<Resp, E> errorMapper, Function<E, String> errorMessageMapper, HttpUriRequest request) {
+        try (CloseableHttpResponse execute = HTTP_CLIENT.execute(request)) {
             Resp resp = Resp.builder()
                     .body(EntityUtils.toString(execute.getEntity()))
                     .build();
@@ -70,4 +76,15 @@ public final class Http {
         }
     }
 
+    public static <R> Resp post(String uri, R body) {
+        HttpPost post = new HttpPost(uri);
+        try {
+            post.setEntity(new StringEntity(Mapper.parseObject(body)));
+            post.setHeader("Content-Type", "application/json");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return execute(resp -> uri, e -> e, post);
+    }
 }

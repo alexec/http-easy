@@ -13,7 +13,7 @@ public class GetQueryParamsTest {
 
     @Test
     public void urlEncoding() throws Exception {
-        wireMockRule.stubFor(get(urlMatching(".*\\?foo=baz\\+qux")).willReturn(ok()));
+        wireMockRule.stubFor(get(urlMatching(".*\\?foo=baz\\%20qux")).willReturn(ok()));
 
         Http.get("http://localhost:8080?foo={}", "baz qux");
     }

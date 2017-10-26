@@ -38,7 +38,7 @@ public class GetPayloadTest {
 
     @Test
     public void bodyAsString() throws Exception {
-        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withBody("Ok")));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withBody("\"Ok\"")));
 
         assertEquals("Ok", Http.get("http://localhost:8080").as());
     }
