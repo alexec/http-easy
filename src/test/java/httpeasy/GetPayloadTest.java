@@ -70,4 +70,19 @@ public class GetPayloadTest {
         Http.get("http://localhost:8080");
     }
 
+    @Test
+    public void temporaryRedirectIsFollowed() throws Exception {
+        wireMockRule.stubFor(get(urlMatching("/")).willReturn(temporaryRedirect("/location")));
+        wireMockRule.stubFor(get(urlPathMatching("/location")).willReturn(ok()));
+
+        Http.get("http://localhost:8080");
+    }
+
+    @Test
+    public void permanentRedirectIsFollowed() throws Exception {
+        wireMockRule.stubFor(get(urlMatching("/")).willReturn(permanentRedirect("/location")));
+        wireMockRule.stubFor(get(urlPathMatching("/location")).willReturn(ok()));
+
+        Http.get("http://localhost:8080");
+    }
 }
