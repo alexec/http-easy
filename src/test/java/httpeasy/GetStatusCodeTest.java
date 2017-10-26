@@ -1,13 +1,11 @@
 package httpeasy;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import httpeasy.api.Http;
+import httpeasy.api.*;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class GetStatusCodeTest {
     @Rule
@@ -17,36 +15,74 @@ public class GetStatusCodeTest {
     public void okReturns() throws Exception {
         wireMockRule.stubFor(get(anyUrl()).willReturn(ok()));
 
-        assertNotNull(Http.get("http://localhost:8080"));
+        Http.get("http://localhost:8080");
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void badRequestThrowIllegalArgumentException() throws Exception {
+        wireMockRule.stubFor(get(anyUrl()).willReturn(badRequest()));
+
+        Http.get("http://localhost:8080");
+    }
+
+
+    @Test(expected = UnauthorizedException.class)
+    public void unauthorizedThrowIllegalArgumentException() throws Exception {
+        wireMockRule.stubFor(get(anyUrl()).willReturn(unauthorized()));
+
+        Http.get("http://localhost:8080");
+    }
+
+    @Test(expected = ForbiddenException.class)
+    public void forbiddenThrownIllegalArgumentException() throws Exception {
+        wireMockRule.stubFor(get(anyUrl()).willReturn(forbidden()));
+
+        Http.get("http://localhost:8080");
+    }
+
+
+    @Test(expected = NotFoundException.class)
+    public void notFoundReturnNull() throws Exception {
+        wireMockRule.stubFor(get(anyUrl()).willReturn(notFound()));
+
+        Http.get("http://localhost:8080");
+    }
+
+
+    @Test(expected = ConflictException.class)
+    public void conflictReturnConflictException() throws Exception {
+        wireMockRule.stubFor(get(anyUrl()).willReturn(status(409)));
+
+        Http.get("http://localhost:8080");
+    }
+
+    @Test(expected = InternalServerErrorException.class)
+    public void serverErrorsThrowIllegal() throws Exception {
+        wireMockRule.stubFor(get(anyUrl()).willReturn(serverError()));
+
+        Http.get("http://localhost:8080");
+    }
+
+    @Test(expected = ServiceUnavailableException.class)
+    public void serviceUnavailableErrorsThrowIllegal() throws Exception {
+        wireMockRule.stubFor(get(anyUrl()).willReturn(serviceUnavailable()));
+
+        Http.get("http://localhost:8080");
     }
 
     @Test
-    public void bodyAsInt() throws Exception {
-        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withBody("1")));
+    public void temporaryRedirectIsFollowed() throws Exception {
+        wireMockRule.stubFor(get(urlMatching("/")).willReturn(temporaryRedirect("/location")));
+        wireMockRule.stubFor(get(urlPathMatching("/location")).willReturn(ok()));
 
-        int as = Http.get("http://localhost:8080").as(int.class);
-        assertEquals(1, as);
+        Http.get("http://localhost:8080");
     }
 
     @Test
-    public void bodyAsInteger() throws Exception {
-        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withBody("1")));
+    public void permanentRedirectIsFollowed() throws Exception {
+        wireMockRule.stubFor(get(urlMatching("/")).willReturn(permanentRedirect("/location")));
+        wireMockRule.stubFor(get(urlPathMatching("/location")).willReturn(ok()));
 
-        Integer as = Http.get("http://localhost:8080").as(Integer.class);
-        assertEquals(1, as.intValue());
-    }
-
-    @Test
-    public void bodyAsString() throws Exception {
-        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withBody("Ok")));
-
-        assertEquals("Ok", Http.get("http://localhost:8080").as(String.class));
-    }
-
-    @Test
-    public void bodyAsJson() throws Exception {
-        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withHeader("Content-Type", "application/json").withBody("{\"bar\": \"baz\", \"baz\": \"qux\"}")));
-
-        assertEquals(new Foo("baz"), Http.get("http://localhost:8080").as(Foo.class));
+        Http.get("http://localhost:8080");
     }
 }

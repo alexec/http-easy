@@ -2,8 +2,8 @@ package httpeasy.api;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import lombok.Builder;
-import lombok.Value;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -11,13 +11,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @Builder
-@Value
 public class Resp {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private final String body;
 
-    public <T> T as(Class<T> type) {
+    private static <T> T asAux(Class<T> type, String body) {
         if (type.equals(String.class)) {
             return type.cast(body);
         }
@@ -43,4 +42,19 @@ public class Resp {
         }
     }
 
+    public String as() {
+        return as(String.class);
+    }
+
+    public <T> T as(Class<T> type) {
+        return asAux(type, body);
+    }
+
+    public String get(String path) {
+        return get(path, String.class);
+    }
+
+    public <T> T get(String path, Class<T> type) {
+        return asAux(type, JsonPath.read(body, path).toString());
+    }
 }
