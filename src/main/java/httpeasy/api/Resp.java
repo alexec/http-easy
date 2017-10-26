@@ -1,5 +1,6 @@
 package httpeasy.api;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Value;
@@ -12,7 +13,8 @@ import java.lang.reflect.Method;
 @Builder
 @Value
 public class Resp {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private final String body;
 
     public <T> T as(Class<T> type) {

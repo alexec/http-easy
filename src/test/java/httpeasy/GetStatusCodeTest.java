@@ -45,7 +45,7 @@ public class GetStatusCodeTest {
 
     @Test
     public void bodyAsJson() throws Exception {
-        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withHeader("Content-Type", "application/json").withBody("{\"bar\": \"baz\"}")));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(ok().withHeader("Content-Type", "application/json").withBody("{\"bar\": \"baz\", \"baz\": \"qux\"}")));
 
         assertEquals(new Foo("baz"), Http.get("http://localhost:8080").as(Foo.class));
     }
